@@ -1,18 +1,130 @@
-from fastapi import FastAPI, APIRouter
+from fastapi import FastAPI, APIRouter, BackgroundTasks, HTTPException
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
 import os
 import logging
 from pathlib import Path
-from pydantic import BaseModel, Field, ConfigDict
-from typing import List
-import uuid
-from datetime import datetime, timezone
-
+from datetime import datetime
+from models import AppointmentCreate, AppointmentResponse
+from email_service import send_appointment_email, send_confirmation_email
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
+
+# MongoDB connection
+mongo_url = os.environ['MONGO_URL']
+client = AsyncIOMotorClient(mongo_url)
+db = client[os.environ['DB_NAME']]
+
+# Create the main app without a prefix
+app = FastAPI()
+
+# Create a router with the /api prefix
+api_router = APIRouter(prefix="/api")
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
+
+@api_router.get("/")
+async def root():
+    return {"message": "Veterinaria Calidad Sin Frontera API"}
+
+@api_router.post("/appointments", response_model=AppointmentResponse)
+async def create_appointment(
+    appointment: AppointmentCreate,
+    background_tasks: BackgroundTasks
+):
+    """
+    Crear una nueva solicitud de cita
+    """
+    try:
+        # Preparar datos para guardar
+        appointment_dict = appointment.dict()
+        appointment_dict['status'] = 'pending'
+        appointment_dict['created_at'] = datetime.utcnow()
+        
+        # Guardar en MongoDB
+        result = await db.appointments.insert_one(appointment_dict)
+        appointment_dict['id'] = str(result.inserted_id)
+        
+        # Enviar emails en background
+        recipient_email = os.getenv('CLINIC_EMAIL', '')
+        if recipient_email:
+            background_tasks.add_task(
+                send_appointment_email,
+                recipient_email,
+                {
+                    **appointment_dict,
+                    'created_at': appointment_dict['created_at'].strftime('%Y-%m-%d %H:%M:%S')
+                }
+            )
+        
+        # Enviar confirmación al cliente si proporcionó email
+        if appointment.email:
+            background_tasks.add_task(
+                send_confirmation_email,
+                appointment.email,
+                {
+                    **appointment_dict,
+                    'created_at': appointment_dict['created_at'].strftime('%Y-%m-%d %H:%M:%S')
+                }
+            )
+        
+        logger.info(f"Appointment created: {appointment_dict['id']}")
+        
+        return AppointmentResponse(
+            id=appointment_dict['id'],
+            pet_name=appointment_dict.get('pet_name'),
+            owner_name=appointment_dict['owner_name'],
+            phone=appointment_dict['phone'],
+            email=appointment_dict.get('email'),
+            location=appointment_dict.get('location'),
+            preferred_date=appointment_dict.get('preferred_date'),
+            description=appointment_dict['description'],
+            status=appointment_dict['status'],
+            created_at=appointment_dict['created_at']
+        )
+        
+    except Exception as e:
+        logger.error(f"Error creating appointment: {str(e)}")
+        raise HTTPException(status_code=500, detail="Error al crear la cita")
+
+@api_router.get("/appointments")
+async def get_appointments(limit: int = 50):
+    """
+    Obtener lista de citas (para administración)
+    """
+    try:
+        appointments = await db.appointments.find().sort('created_at', -1).limit(limit).to_list(limit)
+        
+        for appointment in appointments:
+            appointment['id'] = str(appointment.pop('_id'))
+        
+        return {"appointments": appointments, "total": len(appointments)}
+        
+    except Exception as e:
+        logger.error(f"Error fetching appointments: {str(e)}")
+        raise HTTPException(status_code=500, detail="Error al obtener las citas")
+
+# Include the router in the main app
+app.include_router(api_router)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_credentials=True,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+@app.on_event("shutdown")
+async def shutdown_db_client():
+    client.close()
 
 # MongoDB connection
 mongo_url = os.environ['MONGO_URL']
