@@ -69,7 +69,7 @@ const Header = () => {
               onClick={() => scrollToSection('testimonios')}
               className="text-slate-700 hover:text-blue-600 font-medium transition-colors"
             >
-              Testimonios
+              Opiniones
             </button>
             <button
               onClick={() => scrollToSection('citas')}
@@ -113,7 +113,7 @@ const Header = () => {
               onClick={() => scrollToSection('testimonios')}
               className="block w-full text-left text-slate-700 hover:text-blue-600 font-medium py-2 transition-colors"
             >
-              Testimonios
+              Opiniones
             </button>
             <button
               onClick={() => scrollToSection('citas')}

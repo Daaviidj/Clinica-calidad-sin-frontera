@@ -8,7 +8,7 @@ const Testimonials = () => {
       <div className="container mx-auto px-4">
         <div className="text-center max-w-3xl mx-auto mb-16">
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-slate-900 mb-4">
-            Lo que Dicen Nuestros Clientes
+            Opiniones de Nuestros Clientes
           </h2>
           <p className="text-lg text-slate-600">
             La satisfacción de nuestros clientes y sus mascotas es nuestra mejor carta de presentación
