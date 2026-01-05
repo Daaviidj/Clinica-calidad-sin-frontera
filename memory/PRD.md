@@ -60,95 +60,97 @@ Crear un sitio web profesional para VETERINARIA CALIDAD SIN FRONTERA que:
 
 ## ✅ Implementado (5 de enero de 2025)
 
-### Frontend Completo con Mock Data
+### Frontend Completo (Primera Iteración)
 - ✅ Header navegable con scroll suave y menú móvil
 - ✅ Hero section con carrusel de 3 imágenes profesionales
 - ✅ Sección de estadísticas con iconos y números de impacto
 - ✅ Servicios: 4 tarjetas con imágenes de Unsplash/Pexels
-- ✅ Testimonios: 4 reseñas reales con fotos
+- ✅ "Opiniones" (anteriormente Testimonios): 4 reseñas reales con fotos
 - ✅ Ubicaciones: 3 clínicas con toda la información (teléfonos, horarios)
-- ✅ Formulario de citas funcional que guarda en localStorage
+- ✅ Formulario de citas funcional
 - ✅ Footer completo con enlaces y redes sociales
 - ✅ Toasts de confirmación usando Sonner
 - ✅ Diseño responsive y animaciones suaves
 - ✅ Colores de marca (azul principal, acentos cálidos)
 
-### Archivos Creados
+### Backend Completo (Segunda Iteración)
+- ✅ Modelo MongoDB para Appointments (citas)
+- ✅ Endpoint POST /api/appointments - Crear solicitud de cita
+- ✅ Endpoint GET /api/appointments - Listar citas
+- ✅ Servicio de email con Gmail SMTP configurado
+- ✅ Email de notificación al correo de la clínica (cuando se configure)
+- ✅ Email de confirmación al cliente (opcional)
+- ✅ Background tasks para envío asíncrono de emails
+- ✅ Logs detallados de todas las operaciones
+- ✅ Manejo de errores robusto
+
+### Archivos Creados/Modificados
 ```
+/app/backend/
+├── server.py (actualizado - endpoints de citas)
+├── models.py (nuevo - modelos Pydantic)
+├── email_service.py (nuevo - servicio de emails)
+└── .env (actualizado - variables para email)
+
 /app/frontend/src/
-├── data/
-│   └── mock.js (datos de clínicas, servicios, testimonios)
-├── pages/
-│   └── Home.jsx
+├── data/mock.js (datos de clínicas, servicios, opiniones)
 ├── components/
-│   ├── Header.jsx
-│   ├── Hero.jsx
-│   ├── Services.jsx
-│   ├── Testimonials.jsx
-│   ├── Locations.jsx
-│   ├── AppointmentForm.jsx
-│   └── Footer.jsx
-├── App.js (actualizado)
-└── App.css (actualizado con animaciones)
+│   ├── Header.jsx (actualizado - "Opiniones")
+│   ├── Testimonials.jsx (actualizado - título "Opiniones")
+│   └── AppointmentForm.jsx (actualizado - integración backend)
 ```
 
 ---
 
 ## 📊 Backlog Priorizado
 
-### P0 - Crítico (Próximo)
-1. **Backend Development**
-   - Crear modelos MongoDB para:
-     - Appointments (citas)
-     - Locations (ubicaciones)
-     - Services (servicios)
-   - Endpoints API:
-     - `POST /api/appointments` - Crear cita
-     - `GET /api/appointments` - Listar citas (admin)
-     - `GET /api/locations` - Información de clínicas
-     - `GET /api/services` - Lista de servicios
-   - Integración con frontend (remover mock.js)
+### P0 - Crítico (Completado ✅)
+1. ~~Backend Development~~ ✅
+   - ~~Crear modelos MongoDB para Appointments~~
+   - ~~Endpoints API POST/GET /api/appointments~~
+   - ~~Integración con frontend~~
+   - ~~Sistema de emails con Gmail SMTP~~
 
-2. **Notificaciones por Email**
-   - Configurar servicio de email (SendGrid o similar)
-   - Email automático al cliente confirmando solicitud
-   - Email al admin con detalles de nueva cita
+### P1 - Alta Prioridad (Próximo)
+1. **Configurar Email del Cliente**
+   - Obtener email de la clínica
+   - Configurar Gmail App Password
+   - Actualizar .env con credenciales
+   - Probar envío de emails
 
-### P1 - Alta Prioridad
-1. **Panel de Administración**
-   - Login para veterinarios/staff
-   - Dashboard para ver citas pendientes
-   - Sistema de gestión de citas (aprobar, rechazar, reprogramar)
+2. **Panel de Administración Básico**
+   - Ver lista de citas solicitadas
+   - Marcar como confirmadas/canceladas
+   - Búsqueda y filtrado por fecha/clínica
 
-2. **Mejoras UX**
+### P2 - Media Prioridad
+1. **Mejoras UX**
    - Integración real con Google Maps en ubicaciones
    - Sistema de calendario visual para elegir fecha/hora
    - WhatsApp API para confirmación automática
 
-### P2 - Media Prioridad
-1. **SEO y Performance**
+2. **SEO y Performance**
    - Meta tags para SEO
    - Lazy loading de imágenes
    - Optimización de rendimiento
-
-2. **Contenido Adicional**
-   - Blog de consejos veterinarios
-   - Galería de fotos de la clínica
-   - Página de equipo veterinario
 
 ---
 
 ## 🔄 Próximas Tareas Inmediatas
 
-1. ✅ **Validar frontend con usuario** - Ver si el diseño cumple expectativas
-2. **Desarrollar backend**:
-   - Crear modelos en MongoDB
-   - Implementar endpoints REST API
-   - Integrar con frontend
-3. **Testing completo**:
+1. **Testing completo con testing_agent_v3**:
    - Probar formulario end-to-end
-   - Validar responsive en móviles
-   - Testing de carga
+   - Validar guardado en MongoDB
+   - Verificar que los emails se enviarían correctamente
+   
+2. **Configurar email del cliente**:
+   - Solicitar email de la clínica
+   - Configurar Gmail App Password
+   - Actualizar /app/backend/.env
+   
+3. **Panel de administración simple** (opcional):
+   - Ver citas pendientes
+   - Gestionar estado de citas
 
 ---
 
